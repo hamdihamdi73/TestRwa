@@ -1,0 +1,98 @@
+{
+  "address": "0xeC802A1B35f71A5182A4fB92b1DF5Fd17c463A0C",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_identityRegistry",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_user",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_requiredNationality",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_requiredCountry",
+          "type": "uint256"
+        }
+      ],
+      "name": "isCompliant",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "transactionHash": "0x36acc7f3c02e6a98d5cd75964e13c8a3b82426cda7665b67ab979bc2b6d1a24a",
+  "receipt": {
+    "to": null,
+    "from": "0x29549757C5597c529efCD2F8d0732F81c2fD1A1D",
+    "contractAddress": "0xeC802A1B35f71A5182A4fB92b1DF5Fd17c463A0C",
+    "transactionIndex": 67,
+    "gasUsed": "180120",
+    "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "blockHash": "0x2d54a36153b9f112d7c93a5b70aa126671128ba5666ed285f740ff065e448177",
+    "transactionHash": "0x36acc7f3c02e6a98d5cd75964e13c8a3b82426cda7665b67ab979bc2b6d1a24a",
+    "logs": [],
+    "blockNumber": 6383169,
+    "cumulativeGasUsed": "8699571",
+    "status": 1,
+    "byzantium": true
+  },
+  "args": [
+    "0x7fa74e119eD2ceFE4331B78C402E7Bc8dd2cD650"
+  ],
+  "numDeployments": 1,
+  "solcInputHash": "db8f13ed83bbd81bfe16242db6ee00c8",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.17+commit.8df45f5f\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_identityRegistry\",\"type\":\"address\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_user\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"_requiredNationality\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"_requiredCountry\",\"type\":\"uint256\"}],\"name\":\"isCompliant\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/ModularCompliance.sol\":\"ModularCompliance\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[]},\"sources\":{\"contracts/IdentityRegistry.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\r\\npragma solidity ^0.8.0;\\r\\n\\r\\ncontract IdentityRegistry {\\r\\n    struct Identity {\\r\\n        address onchainID;\\r\\n        uint256 nationality;\\r\\n        uint256 country;\\r\\n    }\\r\\n\\r\\n    mapping(address => Identity) public identities;\\r\\n\\r\\n    function addIdentity(address _user, address _onchainID, uint256 _nationality, uint256 _country) public {\\r\\n        identities[_user] = Identity(_onchainID, _nationality, _country);\\r\\n    }\\r\\n\\r\\n    function getIdentity(address _user) public view returns (Identity memory) {\\r\\n        return identities[_user];\\r\\n    }\\r\\n}\",\"keccak256\":\"0x3c94fb3d5f3668393c0c62a078bf7c13a019360fda684a9a6dc283d2c9dc2160\",\"license\":\"MIT\"},\"contracts/ModularCompliance.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\r\\npragma solidity ^0.8.0;\\r\\n\\r\\nimport \\\"./IdentityRegistry.sol\\\";\\r\\n\\r\\ncontract ModularCompliance {\\r\\n    IdentityRegistry identityRegistry;\\r\\n\\r\\n    constructor(address _identityRegistry) {\\r\\n        identityRegistry = IdentityRegistry(_identityRegistry);\\r\\n    }\\r\\n\\r\\n    function isCompliant(address _user, uint256 _requiredNationality, uint256 _requiredCountry) public view returns (bool) {\\r\\n        IdentityRegistry.Identity memory identity = identityRegistry.getIdentity(_user);\\r\\n        return identity.nationality == _requiredNationality && identity.country == _requiredCountry;\\r\\n    }\\r\\n}\",\"keccak256\":\"0x8c6177067422cea7e7c8a1841393b438e4ce11cf5c0a1021b952ca3b0ec5865d\",\"license\":\"MIT\"}},\"version\":1}",
+  "bytecode": "0x608060405234801561001057600080fd5b5060405161026d38038061026d83398101604081905261002f91610054565b600080546001600160a01b0319166001600160a01b0392909216919091179055610084565b60006020828403121561006657600080fd5b81516001600160a01b038116811461007d57600080fd5b9392505050565b6101da806100936000396000f3fe608060405234801561001057600080fd5b506004361061002b5760003560e01c8063af7d696d14610030575b600080fd5b61004361003e3660046100ff565b610057565b604051901515815260200160405180910390f35b60008054604051632fea7b8160e01b81526001600160a01b03868116600483015283921690632fea7b8190602401606060405180830381865afa1580156100a2573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906100c69190610134565b90508381602001511480156100de5750828160400151145b95945050505050565b6001600160a01b03811681146100fc57600080fd5b50565b60008060006060848603121561011457600080fd5b833561011f816100e7565b95602085013595506040909401359392505050565b60006060828403121561014657600080fd5b6040516060810181811067ffffffffffffffff8211171561017757634e487b7160e01b600052604160045260246000fd5b6040528251610185816100e7565b815260208381015190820152604092830151928101929092525091905056fea2646970667358221220b3d85248f09ee6249399acc73c77f19e4bd8e1ebdbcf0a36b14fbaec133a959464736f6c63430008110033",
+  "deployedBytecode": "0x608060405234801561001057600080fd5b506004361061002b5760003560e01c8063af7d696d14610030575b600080fd5b61004361003e3660046100ff565b610057565b604051901515815260200160405180910390f35b60008054604051632fea7b8160e01b81526001600160a01b03868116600483015283921690632fea7b8190602401606060405180830381865afa1580156100a2573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906100c69190610134565b90508381602001511480156100de5750828160400151145b95945050505050565b6001600160a01b03811681146100fc57600080fd5b50565b60008060006060848603121561011457600080fd5b833561011f816100e7565b95602085013595506040909401359392505050565b60006060828403121561014657600080fd5b6040516060810181811067ffffffffffffffff8211171561017757634e487b7160e01b600052604160045260246000fd5b6040528251610185816100e7565b815260208381015190820152604092830151928101929092525091905056fea2646970667358221220b3d85248f09ee6249399acc73c77f19e4bd8e1ebdbcf0a36b14fbaec133a959464736f6c63430008110033",
+  "devdoc": {
+    "kind": "dev",
+    "methods": {},
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {},
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [
+      {
+        "astId": 3647,
+        "contract": "contracts/ModularCompliance.sol:ModularCompliance",
+        "label": "identityRegistry",
+        "offset": 0,
+        "slot": "0",
+        "type": "t_contract(IdentityRegistry)3591"
+      }
+    ],
+    "types": {
+      "t_contract(IdentityRegistry)3591": {
+        "encoding": "inplace",
+        "label": "contract IdentityRegistry",
+        "numberOfBytes": "20"
+      }
+    }
+  }
+}

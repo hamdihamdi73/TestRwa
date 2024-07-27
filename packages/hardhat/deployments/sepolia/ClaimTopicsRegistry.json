@@ -1,0 +1,132 @@
+{
+  "address": "0x7fa74e119eD2ceFE4331B78C402E7Bc8dd2cD650",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_claimTopic",
+          "type": "uint256"
+        }
+      ],
+      "name": "addClaimTopic",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "claimTopics",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_claimTopic",
+          "type": "uint256"
+        }
+      ],
+      "name": "isClaimTopic",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_claimTopic",
+          "type": "uint256"
+        }
+      ],
+      "name": "removeClaimTopic",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "transactionHash": "0xec5a57f39b57f6b464274614bcfbfea63721bc5fdf3cd64c24350339930d96d3",
+  "receipt": {
+    "to": null,
+    "from": "0x29549757C5597c529efCD2F8d0732F81c2fD1A1D",
+    "contractAddress": "0x7fa74e119eD2ceFE4331B78C402E7Bc8dd2cD650",
+    "transactionIndex": 48,
+    "gasUsed": "124717",
+    "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "blockHash": "0x8ddea107a07fd0d9444420be76ca9230182c81ae3477d26cc90ef310e80b8405",
+    "transactionHash": "0xec5a57f39b57f6b464274614bcfbfea63721bc5fdf3cd64c24350339930d96d3",
+    "logs": [],
+    "blockNumber": 6383166,
+    "cumulativeGasUsed": "12160541",
+    "status": 1,
+    "byzantium": true
+  },
+  "args": [],
+  "numDeployments": 1,
+  "solcInputHash": "db8f13ed83bbd81bfe16242db6ee00c8",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.17+commit.8df45f5f\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_claimTopic\",\"type\":\"uint256\"}],\"name\":\"addClaimTopic\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"claimTopics\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_claimTopic\",\"type\":\"uint256\"}],\"name\":\"isClaimTopic\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_claimTopic\",\"type\":\"uint256\"}],\"name\":\"removeClaimTopic\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/ClaimTopicsRegistry.sol\":\"ClaimTopicsRegistry\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[]},\"sources\":{\"contracts/ClaimTopicsRegistry.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\r\\npragma solidity ^0.8.0;\\r\\n\\r\\ncontract ClaimTopicsRegistry {\\r\\n    mapping(uint256 => bool) public claimTopics;\\r\\n\\r\\n    function addClaimTopic(uint256 _claimTopic) public {\\r\\n        claimTopics[_claimTopic] = true;\\r\\n    }\\r\\n\\r\\n    function removeClaimTopic(uint256 _claimTopic) public {\\r\\n        claimTopics[_claimTopic] = false;\\r\\n    }\\r\\n\\r\\n    function isClaimTopic(uint256 _claimTopic) public view returns (bool) {\\r\\n        return claimTopics[_claimTopic];\\r\\n    }\\r\\n}\",\"keccak256\":\"0xa7a58d6fd40356a0c6ed254de0e9de3e8fa5fc55faf796daf9247e5d45dff187\",\"license\":\"MIT\"}},\"version\":1}",
+  "bytecode": "0x608060405234801561001057600080fd5b5061014b806100206000396000f3fe608060405234801561001057600080fd5b506004361061004c5760003560e01c806308297846146100515780639b15840614610079578063c6f2dabb146100b0578063c7b22551146100d3575b600080fd5b61007761005f3660046100fc565b6000908152602081905260409020805460ff19169055565b005b61009c6100873660046100fc565b60006020819052908152604090205460ff1681565b604051901515815260200160405180910390f35b61009c6100be3660046100fc565b60009081526020819052604090205460ff1690565b6100776100e13660046100fc565b6000908152602081905260409020805460ff19166001179055565b60006020828403121561010e57600080fd5b503591905056fea2646970667358221220676ab2568ec00046a0576458225c14ad80f2ebadb985a07fcbcc70c9fb05bd2564736f6c63430008110033",
+  "deployedBytecode": "0x608060405234801561001057600080fd5b506004361061004c5760003560e01c806308297846146100515780639b15840614610079578063c6f2dabb146100b0578063c7b22551146100d3575b600080fd5b61007761005f3660046100fc565b6000908152602081905260409020805460ff19169055565b005b61009c6100873660046100fc565b60006020819052908152604090205460ff1681565b604051901515815260200160405180910390f35b61009c6100be3660046100fc565b60009081526020819052604090205460ff1690565b6100776100e13660046100fc565b6000908152602081905260409020805460ff19166001179055565b60006020828403121561010e57600080fd5b503591905056fea2646970667358221220676ab2568ec00046a0576458225c14ad80f2ebadb985a07fcbcc70c9fb05bd2564736f6c63430008110033",
+  "devdoc": {
+    "kind": "dev",
+    "methods": {},
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {},
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [
+      {
+        "astId": 3504,
+        "contract": "contracts/ClaimTopicsRegistry.sol:ClaimTopicsRegistry",
+        "label": "claimTopics",
+        "offset": 0,
+        "slot": "0",
+        "type": "t_mapping(t_uint256,t_bool)"
+      }
+    ],
+    "types": {
+      "t_bool": {
+        "encoding": "inplace",
+        "label": "bool",
+        "numberOfBytes": "1"
+      },
+      "t_mapping(t_uint256,t_bool)": {
+        "encoding": "mapping",
+        "key": "t_uint256",
+        "label": "mapping(uint256 => bool)",
+        "numberOfBytes": "32",
+        "value": "t_bool"
+      },
+      "t_uint256": {
+        "encoding": "inplace",
+        "label": "uint256",
+        "numberOfBytes": "32"
+      }
+    }
+  }
+}

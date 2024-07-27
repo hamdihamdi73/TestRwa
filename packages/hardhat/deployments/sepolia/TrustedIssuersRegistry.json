@@ -1,0 +1,132 @@
+{
+  "address": "0x7B9128ea8AcE96082714d0222Df634f177279C1E",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_issuer",
+          "type": "address"
+        }
+      ],
+      "name": "addTrustedIssuer",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_issuer",
+          "type": "address"
+        }
+      ],
+      "name": "isTrustedIssuer",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_issuer",
+          "type": "address"
+        }
+      ],
+      "name": "removeTrustedIssuer",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "trustedIssuers",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "transactionHash": "0xefc3e02a7168b63836766446709860d840cb0b9bd12863a6ad678ef658fe395d",
+  "receipt": {
+    "to": null,
+    "from": "0x29549757C5597c529efCD2F8d0732F81c2fD1A1D",
+    "contractAddress": "0x7B9128ea8AcE96082714d0222Df634f177279C1E",
+    "transactionIndex": 66,
+    "gasUsed": "135573",
+    "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "blockHash": "0x5bd2e3d065791094fa100053f52e0b1d73bd8f15245a1c88ee86431837c33ca1",
+    "transactionHash": "0xefc3e02a7168b63836766446709860d840cb0b9bd12863a6ad678ef658fe395d",
+    "logs": [],
+    "blockNumber": 6383170,
+    "cumulativeGasUsed": "11547683",
+    "status": 1,
+    "byzantium": true
+  },
+  "args": [],
+  "numDeployments": 1,
+  "solcInputHash": "db8f13ed83bbd81bfe16242db6ee00c8",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.17+commit.8df45f5f\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_issuer\",\"type\":\"address\"}],\"name\":\"addTrustedIssuer\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_issuer\",\"type\":\"address\"}],\"name\":\"isTrustedIssuer\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_issuer\",\"type\":\"address\"}],\"name\":\"removeTrustedIssuer\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"trustedIssuers\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/TrustedIssuersRegistry.sol\":\"TrustedIssuersRegistry\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[]},\"sources\":{\"contracts/TrustedIssuersRegistry.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\r\\npragma solidity ^0.8.0;\\r\\n\\r\\ncontract TrustedIssuersRegistry {\\r\\n    mapping(address => bool) public trustedIssuers;\\r\\n\\r\\n    function addTrustedIssuer(address _issuer) public {\\r\\n        trustedIssuers[_issuer] = true;\\r\\n    }\\r\\n\\r\\n    function removeTrustedIssuer(address _issuer) public {\\r\\n        trustedIssuers[_issuer] = false;\\r\\n    }\\r\\n\\r\\n    function isTrustedIssuer(address _issuer) public view returns (bool) {\\r\\n        return trustedIssuers[_issuer];\\r\\n    }\\r\\n}\",\"keccak256\":\"0xf97112d75c4faee6e0cac617aff5cf1f84c827ad95375ba63b8dddec16eac4ca\",\"license\":\"MIT\"}},\"version\":1}",
+  "bytecode": "0x608060405234801561001057600080fd5b5061017d806100206000396000f3fe608060405234801561001057600080fd5b506004361061004c5760003560e01c806392c54daf14610051578063b93d28eb14610088578063c4566bdd146100b9578063ef2ed1a4146100eb575b600080fd5b61007461005f366004610117565b60006020819052908152604090205460ff1681565b604051901515815260200160405180910390f35b6100b7610096366004610117565b6001600160a01b03166000908152602081905260409020805460ff19169055565b005b6100b76100c7366004610117565b6001600160a01b03166000908152602081905260409020805460ff19166001179055565b6100746100f9366004610117565b6001600160a01b031660009081526020819052604090205460ff1690565b60006020828403121561012957600080fd5b81356001600160a01b038116811461014057600080fd5b939250505056fea264697066735822122043654a6e1e643c63e2f567c1126465b44f47cb07fa9a6ee92914c47165d1decf64736f6c63430008110033",
+  "deployedBytecode": "0x608060405234801561001057600080fd5b506004361061004c5760003560e01c806392c54daf14610051578063b93d28eb14610088578063c4566bdd146100b9578063ef2ed1a4146100eb575b600080fd5b61007461005f366004610117565b60006020819052908152604090205460ff1681565b604051901515815260200160405180910390f35b6100b7610096366004610117565b6001600160a01b03166000908152602081905260409020805460ff19169055565b005b6100b76100c7366004610117565b6001600160a01b03166000908152602081905260409020805460ff19166001179055565b6100746100f9366004610117565b6001600160a01b031660009081526020819052604090205460ff1690565b60006020828403121561012957600080fd5b81356001600160a01b038116811461014057600080fd5b939250505056fea264697066735822122043654a6e1e643c63e2f567c1126465b44f47cb07fa9a6ee92914c47165d1decf64736f6c63430008110033",
+  "devdoc": {
+    "kind": "dev",
+    "methods": {},
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {},
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [
+      {
+        "astId": 4105,
+        "contract": "contracts/TrustedIssuersRegistry.sol:TrustedIssuersRegistry",
+        "label": "trustedIssuers",
+        "offset": 0,
+        "slot": "0",
+        "type": "t_mapping(t_address,t_bool)"
+      }
+    ],
+    "types": {
+      "t_address": {
+        "encoding": "inplace",
+        "label": "address",
+        "numberOfBytes": "20"
+      },
+      "t_bool": {
+        "encoding": "inplace",
+        "label": "bool",
+        "numberOfBytes": "1"
+      },
+      "t_mapping(t_address,t_bool)": {
+        "encoding": "mapping",
+        "key": "t_address",
+        "label": "mapping(address => bool)",
+        "numberOfBytes": "32",
+        "value": "t_bool"
+      }
+    }
+  }
+}

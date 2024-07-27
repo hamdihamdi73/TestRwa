@@ -1,0 +1,192 @@
+{
+  "address": "0xc082751e34c2bf77f1Dee5fEB5E370ce898ac73e",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_user",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_onchainID",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_nationality",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_country",
+          "type": "uint256"
+        }
+      ],
+      "name": "addIdentity",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_user",
+          "type": "address"
+        }
+      ],
+      "name": "getIdentity",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "onchainID",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "nationality",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "country",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct IdentityRegistryStorage.Identity",
+          "name": "",
+          "type": "tuple"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "identities",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "onchainID",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "nationality",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "country",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "transactionHash": "0x76aac5500eda512e06221b939a7810fe6cdba6f629cbfb7f25155467645f121f",
+  "receipt": {
+    "to": null,
+    "from": "0x29549757C5597c529efCD2F8d0732F81c2fD1A1D",
+    "contractAddress": "0xc082751e34c2bf77f1Dee5fEB5E370ce898ac73e",
+    "transactionIndex": 88,
+    "gasUsed": "188965",
+    "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "blockHash": "0x52abd54dc9cc12ed2376a69ca45e72906f55743710789102109d39b62d2ecd2b",
+    "transactionHash": "0x76aac5500eda512e06221b939a7810fe6cdba6f629cbfb7f25155467645f121f",
+    "logs": [],
+    "blockNumber": 6383168,
+    "cumulativeGasUsed": "13336523",
+    "status": 1,
+    "byzantium": true
+  },
+  "args": [],
+  "numDeployments": 1,
+  "solcInputHash": "db8f13ed83bbd81bfe16242db6ee00c8",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.17+commit.8df45f5f\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_user\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"_onchainID\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"_nationality\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"_country\",\"type\":\"uint256\"}],\"name\":\"addIdentity\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_user\",\"type\":\"address\"}],\"name\":\"getIdentity\",\"outputs\":[{\"components\":[{\"internalType\":\"address\",\"name\":\"onchainID\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"nationality\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"country\",\"type\":\"uint256\"}],\"internalType\":\"struct IdentityRegistryStorage.Identity\",\"name\":\"\",\"type\":\"tuple\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"identities\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"onchainID\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"nationality\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"country\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/IdentityRegistryStorage.sol\":\"IdentityRegistryStorage\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[]},\"sources\":{\"contracts/IdentityRegistryStorage.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\r\\npragma solidity ^0.8.0;\\r\\n\\r\\ncontract IdentityRegistryStorage {\\r\\n    struct Identity {\\r\\n        address onchainID;\\r\\n        uint256 nationality;\\r\\n        uint256 country;\\r\\n    }\\r\\n\\r\\n    mapping(address => Identity) public identities;\\r\\n\\r\\n    function addIdentity(address _user, address _onchainID, uint256 _nationality, uint256 _country) public {\\r\\n        identities[_user] = Identity(_onchainID, _nationality, _country);\\r\\n    }\\r\\n\\r\\n    function getIdentity(address _user) public view returns (Identity memory) {\\r\\n        return identities[_user];\\r\\n    }\\r\\n}\",\"keccak256\":\"0xdd37d3afbcb508641eb3a09e1eb0cc877633e3b5a6a0899a11840abad303ae94\",\"license\":\"MIT\"}},\"version\":1}",
+  "bytecode": "0x608060405234801561001057600080fd5b50610274806100206000396000f3fe608060405234801561001057600080fd5b50600436106100415760003560e01c80632fea7b8114610046578063cb2f21c914610089578063f653b81e146100f1575b600080fd5b6100596100543660046101da565b61014f565b6040805182516001600160a01b031681526020808401519082015291810151908201526060015b60405180910390f35b6100ef6100973660046101fc565b604080516060810182526001600160a01b03948516815260208082019485528183019384529585166000908152958690529420935184546001600160a01b031916931692909217835551600183015551600290910155565b005b61012a6100ff3660046101da565b6000602081905290815260409020805460018201546002909201546001600160a01b03909116919083565b604080516001600160a01b039094168452602084019290925290820152606001610080565b61017c604051806060016040528060006001600160a01b0316815260200160008152602001600081525090565b506001600160a01b0390811660009081526020818152604091829020825160608101845281549094168452600181015491840191909152600201549082015290565b80356001600160a01b03811681146101d557600080fd5b919050565b6000602082840312156101ec57600080fd5b6101f5826101be565b9392505050565b6000806000806080858703121561021257600080fd5b61021b856101be565b9350610229602086016101be565b9396939550505050604082013591606001359056fea264697066735822122071f39fcf87d22c2d73952e87fb0b618faddad7e63dd9a16b753998a2de24c67064736f6c63430008110033",
+  "deployedBytecode": "0x608060405234801561001057600080fd5b50600436106100415760003560e01c80632fea7b8114610046578063cb2f21c914610089578063f653b81e146100f1575b600080fd5b6100596100543660046101da565b61014f565b6040805182516001600160a01b031681526020808401519082015291810151908201526060015b60405180910390f35b6100ef6100973660046101fc565b604080516060810182526001600160a01b03948516815260208082019485528183019384529585166000908152958690529420935184546001600160a01b031916931692909217835551600183015551600290910155565b005b61012a6100ff3660046101da565b6000602081905290815260409020805460018201546002909201546001600160a01b03909116919083565b604080516001600160a01b039094168452602084019290925290820152606001610080565b61017c604051806060016040528060006001600160a01b0316815260200160008152602001600081525090565b506001600160a01b0390811660009081526020818152604091829020825160608101845281549094168452600181015491840191909152600201549082015290565b80356001600160a01b03811681146101d557600080fd5b919050565b6000602082840312156101ec57600080fd5b6101f5826101be565b9392505050565b6000806000806080858703121561021257600080fd5b61021b856101be565b9350610229602086016101be565b9396939550505050604082013591606001359056fea264697066735822122071f39fcf87d22c2d73952e87fb0b618faddad7e63dd9a16b753998a2de24c67064736f6c63430008110033",
+  "devdoc": {
+    "kind": "dev",
+    "methods": {},
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {},
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [
+      {
+        "astId": 3605,
+        "contract": "contracts/IdentityRegistryStorage.sol:IdentityRegistryStorage",
+        "label": "identities",
+        "offset": 0,
+        "slot": "0",
+        "type": "t_mapping(t_address,t_struct(Identity)3600_storage)"
+      }
+    ],
+    "types": {
+      "t_address": {
+        "encoding": "inplace",
+        "label": "address",
+        "numberOfBytes": "20"
+      },
+      "t_mapping(t_address,t_struct(Identity)3600_storage)": {
+        "encoding": "mapping",
+        "key": "t_address",
+        "label": "mapping(address => struct IdentityRegistryStorage.Identity)",
+        "numberOfBytes": "32",
+        "value": "t_struct(Identity)3600_storage"
+      },
+      "t_struct(Identity)3600_storage": {
+        "encoding": "inplace",
+        "label": "struct IdentityRegistryStorage.Identity",
+        "members": [
+          {
+            "astId": 3595,
+            "contract": "contracts/IdentityRegistryStorage.sol:IdentityRegistryStorage",
+            "label": "onchainID",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_address"
+          },
+          {
+            "astId": 3597,
+            "contract": "contracts/IdentityRegistryStorage.sol:IdentityRegistryStorage",
+            "label": "nationality",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 3599,
+            "contract": "contracts/IdentityRegistryStorage.sol:IdentityRegistryStorage",
+            "label": "country",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_uint256"
+          }
+        ],
+        "numberOfBytes": "96"
+      },
+      "t_uint256": {
+        "encoding": "inplace",
+        "label": "uint256",
+        "numberOfBytes": "32"
+      }
+    }
+  }
+}
