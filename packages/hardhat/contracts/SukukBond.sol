@@ -112,8 +112,44 @@ contract SukukBond is ERC20, AccessControl, IERC3643 {
     }
 
     function validateSukuk() external onlyRole(MASTER_ROLE) {
+        require(sukukDetails.isShariahCompliant, "Sukuk is not Shariah compliant");
         isReleased = true;
+        emit SukukReleased();
     }
+
+    function issueSukuk(
+        uint256 _maturity,
+        uint256 _profitRate,
+        uint256 _profitDistributionPeriod,
+        uint256 _faceValue,
+        string memory _currency,
+        string memory _assetType,
+        string memory _sukukStructure,
+        uint256 _minInvestment,
+        uint256 _maxInvestment,
+        uint256 _totalInvestmentTarget,
+        uint256 _investmentDeadline,
+        address[] memory _allowedCountries
+    ) external onlyRole(ISSUER_ROLE) {
+        createSukuk(
+            _maturity,
+            _profitRate,
+            _profitDistributionPeriod,
+            _faceValue,
+            _currency,
+            _assetType,
+            _sukukStructure,
+            _minInvestment,
+            _maxInvestment,
+            _totalInvestmentTarget,
+            _investmentDeadline,
+            _allowedCountries
+        );
+        emit SukukIssued();
+    }
+
+    event SukukIssued();
+    event SukukReleased();
 
     function invest(uint256 amount) external {
         require(isReleased, "Sukuk is not released yet");
