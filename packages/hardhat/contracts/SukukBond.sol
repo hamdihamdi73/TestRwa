@@ -32,6 +32,7 @@ contract SukukBond is ERC20, AccessControl, IERC3643 {
     mapping(address => uint256) public unclaimedCoupons;
 
     bytes32 public constant AUDITOR_ROLE = keccak256("AUDITOR_ROLE");
+    bytes32 public constant MASTER_ROLE = keccak256("MASTER_ROLE");
 
     constructor(
         string memory name,
@@ -42,6 +43,7 @@ contract SukukBond is ERC20, AccessControl, IERC3643 {
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _setupRole(ISSUER_ROLE, msg.sender);
         _setupRole(AUDITOR_ROLE, msg.sender);
+        _setupRole(MASTER_ROLE, msg.sender);
         identityRegistry = IdentityRegistry(_identityRegistry);
         compliance = Compliance(_compliance);
     }
@@ -82,6 +84,7 @@ contract SukukBond is ERC20, AccessControl, IERC3643 {
     }
 
     function distributeCoupons() external {
+        require(hasRole(MASTER_ROLE, msg.sender) || hasRole(AUDITOR_ROLE, msg.sender), "Caller is not authorized");
         require(isCouponValidated, "Coupon amount not validated");
         require(block.timestamp < bondDetails.maturity, "Bond has matured");
 
