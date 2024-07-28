@@ -26,6 +26,12 @@ contract SukukBond is ERC20, AccessControl, IERC3643 {
 
     BondDetails public bondDetails;
     uint256 public lastCouponTimestamp;
+    uint256 public nextCouponAmount;
+    uint256 public couponValidationDeadline;
+    bool public isCouponValidated;
+    mapping(address => uint256) public unclaimedCoupons;
+
+    bytes32 public constant AUDITOR_ROLE = keccak256("AUDITOR_ROLE");
 
     constructor(
         string memory name,
@@ -35,13 +41,13 @@ contract SukukBond is ERC20, AccessControl, IERC3643 {
     ) ERC20(name, symbol) {
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _setupRole(ISSUER_ROLE, msg.sender);
+        _setupRole(AUDITOR_ROLE, msg.sender);
         identityRegistry = IdentityRegistry(_identityRegistry);
         compliance = Compliance(_compliance);
     }
 
     function setBondDetails(
         uint256 _maturity,
-        uint256 _couponRate,
         uint256 _couponPeriod,
         uint256 _faceValue,
         string memory _currency,
@@ -50,7 +56,7 @@ contract SukukBond is ERC20, AccessControl, IERC3643 {
     ) external onlyRole(ISSUER_ROLE) {
         bondDetails = BondDetails(
             _maturity,
-            _couponRate,
+            0, // couponRate is not used in this implementation
             _couponPeriod,
             _faceValue,
             _currency,
@@ -60,39 +66,50 @@ contract SukukBond is ERC20, AccessControl, IERC3643 {
         lastCouponTimestamp = block.timestamp;
     }
 
-    function calculateCoupon(address holder) public view returns (uint256) {
-        uint256 balance = balanceOf(holder);
-        uint256 timeSinceLastCoupon = block.timestamp - lastCouponTimestamp;
-        uint256 periodsElapsed = timeSinceLastCoupon / bondDetails.couponPeriod;
-        
-        if (periodsElapsed == 0) {
-            return 0;
-        }
-
-        uint256 couponAmount = (balance * bondDetails.couponRate * periodsElapsed) / (100 * 365 days / bondDetails.couponPeriod);
-        return couponAmount;
+    function setCouponAmount(uint256 _amount) external onlyRole(ISSUER_ROLE) {
+        require(block.timestamp >= lastCouponTimestamp + bondDetails.couponPeriod, "Coupon period not elapsed");
+        require(block.timestamp < bondDetails.maturity, "Bond has matured");
+        nextCouponAmount = _amount;
+        couponValidationDeadline = block.timestamp + 1 weeks;
+        isCouponValidated = false;
+        emit CouponAmountSet(_amount);
     }
 
-    function distributeCoupons() external onlyRole(ISSUER_ROLE) {
-        require(block.timestamp >= lastCouponTimestamp + bondDetails.couponPeriod, "Coupon period not elapsed");
+    function validateCouponAmount() external onlyRole(AUDITOR_ROLE) {
+        require(block.timestamp <= couponValidationDeadline, "Validation period has passed");
+        isCouponValidated = true;
+        emit CouponAmountValidated(nextCouponAmount);
+    }
+
+    function distributeCoupons() external {
+        require(isCouponValidated, "Coupon amount not validated");
+        require(block.timestamp < bondDetails.maturity, "Bond has matured");
 
         uint256 totalSupply = totalSupply();
-        uint256 totalCouponAmount = 0;
+        uint256 couponPerToken = nextCouponAmount / totalSupply;
 
         for (uint256 i = 0; i < totalSupply; i++) {
             address holder = ownerOf(i);
-            uint256 couponAmount = calculateCoupon(holder);
-            if (couponAmount > 0) {
-                _mint(holder, couponAmount);
-                totalCouponAmount += couponAmount;
-            }
+            uint256 couponAmount = couponPerToken;
+            unclaimedCoupons[holder] += couponAmount;
         }
 
         lastCouponTimestamp = block.timestamp;
-        emit CouponsDistributed(totalCouponAmount);
+        emit CouponsDistributed(nextCouponAmount);
     }
 
+    function claimCoupon() external {
+        uint256 amount = unclaimedCoupons[msg.sender];
+        require(amount > 0, "No unclaimed coupons");
+        unclaimedCoupons[msg.sender] = 0;
+        _mint(msg.sender, amount);
+        emit CouponClaimed(msg.sender, amount);
+    }
+
+    event CouponAmountSet(uint256 amount);
+    event CouponAmountValidated(uint256 amount);
     event CouponsDistributed(uint256 totalAmount);
+    event CouponClaimed(address indexed holder, uint256 amount);
 
     function mint(address to, uint256 amount) external onlyRole(ISSUER_ROLE) {
         require(identityRegistry.isVerified(to), "Recipient is not verified");
