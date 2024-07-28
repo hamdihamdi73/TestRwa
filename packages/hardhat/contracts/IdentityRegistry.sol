@@ -68,6 +68,10 @@ contract IdentityRegistry is IIdentityRegistry, AccessControl {
         if (!identityStorage.contains(_identity)) {
             return false;
         }
+        return hasAllRequiredClaims(_identity);
+    }
+
+    function hasAllRequiredClaims(address _identity) public view returns (bool) {
         uint256[] memory requiredClaimTopics = claimTopicsRegistry.getClaimTopics();
         if (requiredClaimTopics.length == 0) {
             return true;

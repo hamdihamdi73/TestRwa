@@ -3,8 +3,18 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/access/AccessControl.sol";
 import "./interfaces/ICompliance.sol";
+import "./SukukBond.sol";
 
 contract Compliance is ICompliance, AccessControl {
+    SukukBond public sukukBond;
+
+    function setSukukBond(address _sukukBond) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        sukukBond = SukukBond(_sukukBond);
+    }
+
+    function isBondholder(address _address) public view returns (bool) {
+        return sukukBond.hasRole(sukukBond.BONDHOLDER_ROLE(), _address);
+    }
     bytes32 public constant AGENT_ROLE = keccak256("AGENT_ROLE");
 
     mapping(address => bool) public frozen;
@@ -36,7 +46,7 @@ contract Compliance is ICompliance, AccessControl {
                 return false;
             }
         }
-        
+    
         TransferRestriction memory restriction = transferRestrictions[_from];
         if (restriction.startTime != 0) {
             if (block.timestamp < restriction.startTime || block.timestamp > restriction.endTime) {
@@ -46,7 +56,11 @@ contract Compliance is ICompliance, AccessControl {
                 return false;
             }
         }
-        
+    
+        if (_from != address(0) && !isBondholder(_from)) {
+            return false;
+        }
+    
         return true;
     }
 

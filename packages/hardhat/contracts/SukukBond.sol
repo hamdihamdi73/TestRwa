@@ -124,6 +124,7 @@ contract SukukBond is ERC20, AccessControl, IERC3643 {
         require(compliance.canTransfer(address(0), to, amount), "Transfer not compliant");
         _mint(to, amount);
         compliance.created(to, amount);
+        _setupRole(BONDHOLDER_ROLE, to);
     }
 
     function transfer(address to, uint256 amount) public virtual override returns (bool) {
@@ -171,6 +172,9 @@ contract SukukBond is ERC20, AccessControl, IERC3643 {
         require(compliance.canTransfer(msg.sender, address(0), amount), "Burn not compliant");
         _burn(msg.sender, amount);
         compliance.destroyed(msg.sender, amount);
+        if (balanceOf(msg.sender) == 0) {
+            revokeRole(BONDHOLDER_ROLE, msg.sender);
+        }
     }
 
     function forcedBurn(address account, uint256 amount) external onlyRole(AGENT_ROLE) {
