@@ -8,6 +8,11 @@ import "./SukukBond.sol";
 contract PlatformManager is AccessControl {
     bytes32 public constant MASTER_ROLE = keccak256("MASTER_ROLE");
     bytes32 public constant CUSTODIAN_ROLE = keccak256("CUSTODIAN_ROLE");
+    bytes32 public constant ISSUER_ROLE = keccak256("ISSUER_ROLE");
+    bytes32 public constant INVESTOR_ROLE = keccak256("INVESTOR_ROLE");
+    bytes32 public constant AUDITOR_ROLE = keccak256("AUDITOR_ROLE");
+    bytes32 public constant MANAGER_ROLE = keccak256("MANAGER_ROLE");
+    bytes32 public constant SHARIA_ADVISOR_ROLE = keccak256("SHARIA_ADVISOR_ROLE");
 
     SUKUSD public sukusd;
     mapping(address => bool) public registeredSukuks;
@@ -18,8 +23,14 @@ contract PlatformManager is AccessControl {
         sukusd = SUKUSD(_sukusd);
     }
 
-    function createAccount(address account, bytes32 role) external onlyRole(MASTER_ROLE) {
+    function assignRole(address account, bytes32 role) external onlyRole(MASTER_ROLE) {
+        require(role != MASTER_ROLE, "MASTER_ROLE can only be assigned by the contract deployer");
         grantRole(role, account);
+    }
+
+    function revokeRole(address account, bytes32 role) external onlyRole(MASTER_ROLE) {
+        require(role != MASTER_ROLE, "MASTER_ROLE cannot be revoked");
+        _revokeRole(role, account);
     }
 
     function mintSUKUSD(address to, uint256 amount) external onlyRole(CUSTODIAN_ROLE) {

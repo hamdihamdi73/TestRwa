@@ -61,16 +61,23 @@ contract SukukBond is ERC20, AccessControl, IERC3643 {
         address _sukusd,
         address _masterAddress
     ) ERC20(name, symbol) {
-        _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
-        _setupRole(ISSUER_ROLE, msg.sender);
-        _setupRole(AUDITOR_ROLE, msg.sender);
-        _setupRole(MASTER_ROLE, msg.sender);
-        _setupRole(SHARIA_ADVISOR_ROLE, msg.sender);
+        _setupRole(DEFAULT_ADMIN_ROLE, _masterAddress);
+        _setupRole(MASTER_ROLE, _masterAddress);
         identityRegistry = IdentityRegistry(_identityRegistry);
         compliance = Compliance(_compliance);
         documentRegistry = DocumentRegistry(_documentRegistry);
         sukusd = SUKUSD(_sukusd);
         masterAddress = _masterAddress;
+    }
+
+    function assignRole(address account, bytes32 role) external onlyRole(MASTER_ROLE) {
+        require(role != MASTER_ROLE, "MASTER_ROLE can only be assigned by the contract deployer");
+        grantRole(role, account);
+    }
+
+    function revokeRole(address account, bytes32 role) external onlyRole(MASTER_ROLE) {
+        require(role != MASTER_ROLE, "MASTER_ROLE cannot be revoked");
+        _revokeRole(role, account);
     }
 
     function createSukuk(

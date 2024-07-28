@@ -53,11 +53,13 @@ contract IdentityRegistry is IIdentityRegistry, AccessControl {
     }
 
     function assignRole(address account, bytes32 role) external onlyRole(MASTER_ROLE) {
+        require(role != MASTER_ROLE, "MASTER_ROLE can only be assigned by the contract deployer");
         grantRole(role, account);
     }
 
     function revokeRole(address account, bytes32 role) external onlyRole(MASTER_ROLE) {
-        revo
+        require(role != MASTER_ROLE, "MASTER_ROLE cannot be revoked");
+        _revokeRole(role, account);
 
     function registerIdentity(
         address _identity,
