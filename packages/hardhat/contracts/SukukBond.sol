@@ -6,13 +6,16 @@ import "@openzeppelin/contracts/access/AccessControl.sol";
 import "./interfaces/IERC3643.sol";
 import "./IdentityRegistry.sol";
 import "./Compliance.sol";
+import "./DocumentRegistry.sol";
 
 contract SukukBond is ERC20, AccessControl, IERC3643 {
     bytes32 public constant ISSUER_ROLE = keccak256("ISSUER_ROLE");
     bytes32 public constant AGENT_ROLE = keccak256("AGENT_ROLE");
+    bytes32 public constant BONDHOLDER_ROLE = keccak256("BONDHOLDER_ROLE");
 
     IdentityRegistry public identityRegistry;
     Compliance public compliance;
+    DocumentRegistry public documentRegistry;
 
     struct BondDetails {
         uint256 maturity;
@@ -38,7 +41,8 @@ contract SukukBond is ERC20, AccessControl, IERC3643 {
         string memory name,
         string memory symbol,
         address _identityRegistry,
-        address _compliance
+        address _compliance,
+        address _documentRegistry
     ) ERC20(name, symbol) {
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _setupRole(ISSUER_ROLE, msg.sender);
@@ -46,6 +50,7 @@ contract SukukBond is ERC20, AccessControl, IERC3643 {
         _setupRole(MASTER_ROLE, msg.sender);
         identityRegistry = IdentityRegistry(_identityRegistry);
         compliance = Compliance(_compliance);
+        documentRegistry = DocumentRegistry(_documentRegistry);
     }
 
     function setBondDetails(
@@ -172,5 +177,25 @@ contract SukukBond is ERC20, AccessControl, IERC3643 {
         require(compliance.canTransfer(account, address(0), amount), "Forced burn not compliant");
         _burn(account, amount);
         compliance.destroyed(account, amount);
+    }
+
+    function signDocument(bytes32 documentHash, bool isPublic, bytes32[] memory allowedRoles) external onlyRole(ISSUER_ROLE) {
+        documentRegistry.signDocument(documentHash, isPublic, allowedRoles);
+    }
+
+    function verifyDocument(bytes32 documentHash, bytes memory signature) external view returns (bool) {
+        return documentRegistry.verifyDocument(documentHash, signature);
+    }
+
+    function canAccessDocument(bytes32 documentHash, address user) external view returns (bool) {
+        return documentRegistry.canAccessDocument(documentHash, user);
+    }
+
+    function mint(address to, uint256 amount) external override onlyRole(ISSUER_ROLE) {
+        require(identityRegistry.isVerified(to), "Recipient is not verified");
+        require(compliance.canTransfer(address(0), to, amount), "Transfer not compliant");
+        _mint(to, amount);
+        compliance.created(to, amount);
+        _setupRole(BONDHOLDER_ROLE, to);
     }
 }
