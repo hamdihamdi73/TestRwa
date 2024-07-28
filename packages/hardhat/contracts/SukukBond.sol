@@ -111,4 +111,10 @@ contract SukukBond is ERC20, AccessControl, IERC3643 {
         _burn(msg.sender, amount);
         compliance.destroyed(msg.sender, amount);
     }
+
+    function forcedBurn(address account, uint256 amount) external onlyRole(AGENT_ROLE) {
+        require(compliance.canTransfer(account, address(0), amount), "Forced burn not compliant");
+        _burn(account, amount);
+        compliance.destroyed(account, amount);
+    }
 }

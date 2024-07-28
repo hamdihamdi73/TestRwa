@@ -98,16 +98,39 @@ contract IdentityRegistry is IIdentityRegistry, AccessControl {
         uint256 _claimTopic,
         address _issuer
     ) internal view returns (bool) {
-        // This is a simplified implementation
-        // In a real-world scenario, you would:
-        // 1. Get the claim from the identity contract
-        // 2. Verify the claim signature
-        // 3. Check if the claim has expired
-        // 4. Ensure the claim topic matches
-        // 5. Verify the issuer is still trusted
+        // Get the claim from the identity contract
+        (uint256 topic, uint256 scheme, address issuer, bytes memory signature, bytes memory data, string memory uri) = IIdentity(_identity).getClaim(_claimTopic, _issuer);
         
-        // For now, we'll just check if the identity has any claim from this issuer
-        return true; // Placeholder - replace with actual implementation
+        // Verify the claim signature
+        bytes32 messageHash = keccak256(abi.encodePacked(_identity, topic, data));
+        require(issuer == _issuer, "Invalid issuer");
+        require(topic == _claimTopic, "Invalid claim topic");
+        require(isValidSignature(messageHash, signature, _issuer), "Invalid signature");
+        
+        // Check if the claim has expired
+        uint256 expirationTime = abi.decode(data, (uint256));
+        require(block.timestamp <= expirationTime, "Claim has expired");
+        
+        // Verify the issuer is still trusted
+        require(trustedIssuersRegistry.isTrustedIssuer(_issuer), "Issuer is not trusted");
+        
+        return true;
+    }
+
+    function isValidSignature(bytes32 _messageHash, bytes memory _signature, address _signer) internal pure returns (bool) {
+        bytes32 ethSignedMessageHash = keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", _messageHash));
+        (bytes32 r, bytes32 s, uint8 v) = splitSignature(_signature);
+        return ecrecover(ethSignedMessageHash, v, r, s) == _signer;
+    }
+
+    function splitSignature(bytes memory sig) internal pure returns (bytes32 r, bytes32 s, uint8 v) {
+        require(sig.length == 65, "Invalid signature length");
+        assembly {
+            r := mload(add(sig, 32))
+            s := mload(add(sig, 64))
+            v := byte(0, mload(add(sig, 96)))
+        }
+        if (v < 27) v += 27;
     }
 
     // Implement other functions as needed
