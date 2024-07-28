@@ -54,6 +54,7 @@ contract SukukBond is ERC20, AccessControl, IERC3643 {
     bool public isConfirmed;
     address public masterAddress;
     uint256 public firstCouponDate;
+    uint256 public firstCouponDate;
 
     constructor(
         string memory name,
