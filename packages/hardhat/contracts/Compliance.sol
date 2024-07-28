@@ -4,26 +4,18 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/access/AccessControl.sol";
 import "./interfaces/ICompliance.sol";
 import "./SukukBond.sol";
+import "./IdentityRegistry.sol";
 
 contract Compliance is ICompliance, AccessControl {
     SukukBond public sukukBond;
+    IdentityRegistry public identityRegistry;
 
-    function setSukukBond(address _sukukBond) external onlyRole(DEFAULT_ADMIN_ROLE) {
-        sukukBond = SukukBond(_sukukBond);
-    }
-
-    function isBondholder(address _address) public view returns (bool) {
-        return sukukBond.hasRole(sukukBond.BONDHOLDER_ROLE(), _address);
-    }
     bytes32 public constant AGENT_ROLE = keccak256("AGENT_ROLE");
+    bytes32 public constant MASTER_ROLE = keccak256("MASTER_ROLE");
 
     mapping(address => bool) public frozen;
     uint256 public maxHolderCount;
     uint256 public currentHolderCount;
-
-    constructor() {
-        _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
-    }
 
     struct TransferRestriction {
         uint256 minAmount;
@@ -34,6 +26,16 @@ contract Compliance is ICompliance, AccessControl {
 
     mapping(address => TransferRestriction) public transferRestrictions;
 
+    constructor(address _identityRegistry) {
+        _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
+        _setupRole(MASTER_ROLE, msg.sender);
+        identityRegistry = IdentityRegistry(_identityRegistry);
+    }
+
+    function setSukukBond(address _sukukBond) external onlyRole(MASTER_ROLE) {
+        sukukBond = SukukBond(_sukukBond);
+    }
+
     function canTransfer(address _from, address _to, uint256 _amount) external view override returns (bool) {
         if (frozen[_from] || frozen[_to]) {
             return false;
@@ -41,7 +43,7 @@ contract Compliance is ICompliance, AccessControl {
         if (_from == address(0) && currentHolderCount >= maxHolderCount) {
             return false;
         }
-        if (_to != address(0) && balanceOf(_to) == 0) {
+        if (_to != address(0) && sukukBond.balanceOf(_to) == 0) {
             if (currentHolderCount >= maxHolderCount) {
                 return false;
             }
@@ -57,7 +59,7 @@ contract Compliance is ICompliance, AccessControl {
             }
         }
     
-        if (_from != address(0) && !isBondholder(_from)) {
+        if (_from != address(0) && !identityRegistry.hasRole(identityRegistry.INVESTOR_ROLE(), _from)) {
             return false;
         }
     
@@ -72,27 +74,27 @@ contract Compliance is ICompliance, AccessControl {
         if (_from == address(0)) {
             currentHolderCount++;
         }
-        if (balanceOf(_to) == 0) {
+        if (sukukBond.balanceOf(_to) == 0) {
             currentHolderCount++;
         }
-        if (balanceOf(_from) == _amount) {
+        if (sukukBond.balanceOf(_from) == _amount) {
             currentHolderCount--;
         }
     }
 
     function created(address _to, uint256 _amount) external override onlyRole(AGENT_ROLE) {
-        if (balanceOf(_to) == 0) {
+        if (sukukBond.balanceOf(_to) == 0) {
             currentHolderCount++;
         }
     }
 
     function destroyed(address _from, uint256 _amount) external override onlyRole(AGENT_ROLE) {
-        if (balanceOf(_from) == _amount) {
+        if (sukukBond.balanceOf(_from) == _amount) {
             currentHolderCount--;
         }
     }
 
-    function setMaxHolderCount(uint256 _maxHolderCount) external onlyRole(DEFAULT_ADMIN_ROLE) {
+    function setMaxHolderCount(uint256 _maxHolderCount) external onlyRole(MASTER_ROLE) {
         maxHolderCount = _maxHolderCount;
     }
 
@@ -102,13 +104,5 @@ contract Compliance is ICompliance, AccessControl {
 
     function unfreezeAddress(address _address) external onlyRole(AGENT_ROLE) {
         frozen[_address] = false;
-    }
-
-    // Implement other compliance rules and functions as needed
-
-    function balanceOf(address _address) internal view returns (uint256) {
-        // This function should be implemented to return the token balance of the address
-        // You might need to add this function to your token contract and make it accessible here
-        return 0; // Placeholder
     }
 }

@@ -28,6 +28,13 @@ import "./IdentityRegistryStorage.sol";
 
 contract IdentityRegistry is IIdentityRegistry, AccessControl {
     bytes32 public constant AGENT_ROLE = keccak256("AGENT_ROLE");
+    bytes32 public constant MASTER_ROLE = keccak256("MASTER_ROLE");
+    bytes32 public constant CUSTODIAN_ROLE = keccak256("CUSTODIAN_ROLE");
+    bytes32 public constant ISSUER_ROLE = keccak256("ISSUER_ROLE");
+    bytes32 public constant INVESTOR_ROLE = keccak256("INVESTOR_ROLE");
+    bytes32 public constant AUDITOR_ROLE = keccak256("AUDITOR_ROLE");
+    bytes32 public constant MANAGER_ROLE = keccak256("MANAGER_ROLE");
+    bytes32 public constant SHARIA_ADVISOR_ROLE = keccak256("SHARIA_ADVISOR_ROLE");
 
     ClaimTopicsRegistry public claimTopicsRegistry;
     TrustedIssuersRegistry public trustedIssuersRegistry;
@@ -39,10 +46,18 @@ contract IdentityRegistry is IIdentityRegistry, AccessControl {
         address _identityStorage
     ) {
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
+        _setupRole(MASTER_ROLE, msg.sender);
         claimTopicsRegistry = ClaimTopicsRegistry(_claimTopicsRegistry);
         trustedIssuersRegistry = TrustedIssuersRegistry(_trustedIssuersRegistry);
         identityStorage = IdentityRegistryStorage(_identityStorage);
     }
+
+    function assignRole(address account, bytes32 role) external onlyRole(MASTER_ROLE) {
+        grantRole(role, account);
+    }
+
+    function revokeRole(address account, bytes32 role) external onlyRole(MASTER_ROLE) {
+        revo
 
     function registerIdentity(
         address _identity,
