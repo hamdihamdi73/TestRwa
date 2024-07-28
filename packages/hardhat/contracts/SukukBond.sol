@@ -1,163 +1,98 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
-import "./Roles.sol";
-import "./ModularCompliance.sol";
+import "./interfaces/IERC3643.sol";
+import "./IdentityRegistry.sol";
+import "./Compliance.sol";
 
-contract SukukBond is ERC1155, Ownable, AccessControl {
-    enum CouponPeriod { MONTHLY, WEEKLY, TRIMESTRIAL, SEMI_ANNUAL, ANNUAL }
+contract SukukBond is ERC20, AccessControl, IERC3643 {
+    bytes32 public constant ISSUER_ROLE = keccak256("ISSUER_ROLE");
+    bytes32 public constant AGENT_ROLE = keccak256("AGENT_ROLE");
+
+    IdentityRegistry public identityRegistry;
+    Compliance public compliance;
 
     struct BondDetails {
-        string name;
-        string symbol;
-        uint256 totalSupply;
-        CouponPeriod couponPeriod;
         uint256 maturity;
+        uint256 couponRate;
+        uint256 couponPeriod;
+        uint256 faceValue;
         string currency;
         string esgLabel;
         string category;
-        address onchainID;
-        uint256 firstCouponTime;
-        uint256 purchasePeriodEnd;
     }
 
-    bytes32 public constant ISSUER_ROLE = keccak256("ISSUER_ROLE");
-    bytes32 public constant MASTER_ROLE = keccak256("MASTER_ROLE");
-    bytes32 public constant INVESTOR_ROLE = keccak256("INVESTOR_ROLE");
+    BondDetails public bondDetails;
 
-    mapping(uint256 => BondDetails) public bondDetails;
-    mapping(uint256 => uint256) public bondsPurchased;
-    ModularCompliance public compliance;
-
-    event UpdatedTokenInformation(
-        uint256 indexed id,
-        string name,
-        string symbol,
-        uint256 totalSupply,
-        CouponPeriod couponPeriod,
-        uint256 maturity,
-        string currency,
-        string esgLabel,
-        string category,
-        address onchainID,
-        uint256 firstCouponTime,
-        uint256 purchasePeriodEnd
-    );
-    event IdentityRegistryAdded(address indexed identityRegistry);
-    event ComplianceAdded(address indexed compliance);
-
-    constructor(string memory uri, address _compliance) ERC1155(uri) {
-        _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
-        _setupRole(ISSUER_ROLE, msg.sender);
-        _setupRole(MASTER_ROLE, msg.sender);
-        compliance = ModularCompliance(_compliance);
-        emit ComplianceAdded(_compliance);
-    }
-
-    function createBond(
-        uint256 id,
+    constructor(
         string memory name,
         string memory symbol,
-        uint256 totalSupply,
-        CouponPeriod couponPeriod,
-        uint256 maturity,
-        string memory currency,
-        string memory esgLabel,
-        string memory category,
-        address onchainID,
-        uint256 firstCouponTime,
-        uint256 purchasePeriodDuration,
-        bytes memory data
-    ) public onlyRole(ISSUER_ROLE) {
-        require(firstCouponTime > block.timestamp, "First coupon time must be in the future");
-        uint256 purchasePeriodEnd = block.timestamp + purchasePeriodDuration;
-        require(purchasePeriodEnd < firstCouponTime, "Purchase period must end before first coupon");
+        address _identityRegistry,
+        address _compliance
+    ) ERC20(name, symbol) {
+        _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
+        _setupRole(ISSUER_ROLE, msg.sender);
+        identityRegistry = IdentityRegistry(_identityRegistry);
+        compliance = Compliance(_compliance);
+    }
 
-        bondDetails[id] = BondDetails(
-            name,
-            symbol,
-            totalSupply,
-            couponPeriod,
-            maturity,
-            currency,
-            esgLabel,
-            category,
-            onchainID,
-            firstCouponTime,
-            purchasePeriodEnd
-        );
-        _mint(msg.sender, id, totalSupply, data);
-        emit UpdatedTokenInformation(
-            id,
-            name,
-            symbol,
-            totalSupply,
-            couponPeriod,
-            maturity,
-            currency,
-            esgLabel,
-            category,
-            onchainID,
-            firstCouponTime,
-            purchasePeriodEnd
+    function setBondDetails(
+        uint256 _maturity,
+        uint256 _couponRate,
+        uint256 _couponPeriod,
+        uint256 _faceValue,
+        string memory _currency,
+        string memory _esgLabel,
+        string memory _category
+    ) external onlyRole(ISSUER_ROLE) {
+        bondDetails = BondDetails(
+            _maturity,
+            _couponRate,
+            _couponPeriod,
+            _faceValue,
+            _currency,
+            _esgLabel,
+            _category
         );
     }
 
-    function getBondDetails(uint256 id) public view returns (BondDetails memory) {
-        return bondDetails[id];
+    function mint(address to, uint256 amount) external onlyRole(ISSUER_ROLE) {
+        require(identityRegistry.isVerified(to), "Recipient is not verified");
+        require(compliance.canTransfer(address(0), to, amount), "Transfer not compliant");
+        _mint(to, amount);
     }
 
-    function addAttributes(uint256 id, string memory newCategory) public onlyRole(MASTER_ROLE) {
-        bondDetails[id].category = newCategory;
+    function transfer(address to, uint256 amount) public virtual override returns (bool) {
+        require(identityRegistry.isVerified(to), "Recipient is not verified");
+        require(compliance.canTransfer(msg.sender, to, amount), "Transfer not compliant");
+        return super.transfer(to, amount);
     }
 
-    function transferBond(
-        address to,
-        uint256 id,
-        uint256 amount,
-        uint256 requiredNationality,
-        uint256 requiredCountry
-    ) public {
-        require(compliance.isCompliant(to, requiredNationality, requiredCountry), "Compliance check failed");
-        safeTransferFrom(msg.sender, to, id, amount, "");
+    function transferFrom(address from, address to, uint256 amount) public virtual override returns (bool) {
+        require(identityRegistry.isVerified(to), "Recipient is not verified");
+        require(compliance.canTransfer(from, to, amount), "Transfer not compliant");
+        return super.transferFrom(from, to, amount);
     }
 
-    function setURI(string memory newuri) public onlyOwner {
-        _setURI(newuri);
+    function setIdentityRegistry(address _identityRegistry) external onlyRole(ISSUER_ROLE) {
+        identityRegistry = IdentityRegistry(_identityRegistry);
     }
 
-    // Override supportsInterface
-    function supportsInterface(bytes4 interfaceId) public view virtual override(ERC1155, AccessControl) returns (bool) {
-        return super.supportsInterface(interfaceId);
+    function setCompliance(address _compliance) external onlyRole(ISSUER_ROLE) {
+        compliance = Compliance(_compliance);
     }
 
-    function purchaseBond(uint256 id, uint256 amount) public onlyRole(INVESTOR_ROLE) {
-        BondDetails storage bond = bondDetails[id];
-        require(block.timestamp <= bond.purchasePeriodEnd, "Purchase period has ended");
-        require(bondsPurchased[id] + amount <= bond.totalSupply, "Exceeds available bonds");
-
-        bondsPurchased[id] += amount;
-        safeTransferFrom(owner(), msg.sender, id, amount, "");
+    function forcedTransfer(address from, address to, uint256 amount) external onlyRole(AGENT_ROLE) returns (bool) {
+        require(identityRegistry.isVerified(to), "Recipient is not verified");
+        _transfer(from, to, amount);
+        return true;
     }
 
-    function releaseBonds(uint256 id) public onlyRole(ISSUER_ROLE) {
-        BondDetails storage bond = bondDetails[id];
-        require(block.timestamp > bond.purchasePeriodEnd, "Purchase period has not ended");
-        require(bondsPurchased[id] == bond.totalSupply, "Not all bonds were purchased");
-
-        // Additional logic for releasing bonds to investors
-        // This could involve transferring funds, setting up coupon payments, etc.
+    function isIssuable() external view override returns (bool) {
+        return hasRole(ISSUER_ROLE, msg.sender);
     }
 
-    function returnFunds(uint256 id) public onlyRole(ISSUER_ROLE) {
-        BondDetails storage bond = bondDetails[id];
-        require(block.timestamp > bond.purchasePeriodEnd, "Purchase period has not ended");
-        require(bondsPurchased[id] < bond.totalSupply, "All bonds were purchased");
-
-        // Logic to return funds to investors
-        // This could involve refunding purchases, burning unsold tokens, etc.
-    }
+    // Implement other IERC3643 functions as needed
 }
