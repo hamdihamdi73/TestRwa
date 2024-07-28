@@ -36,7 +36,8 @@ contract SukukBond is ERC20, AccessControl, IERC3643 {
         uint256 minInvestment;
         uint256 maxInvestment;
         uint256 totalInvestmentTarget;
-        uint256 investmentDeadline;
+        uint256 purchasePeriodStart;
+        uint256 purchasePeriodEnd;
         address[] allowedCountries;
     }
 
@@ -50,7 +51,9 @@ contract SukukBond is ERC20, AccessControl, IERC3643 {
     address public underlyingAssetAddress;
     uint256 public totalInvestedAmount;
     bool public isReleased;
+    bool public isConfirmed;
     address public masterAddress;
+    uint256 public firstCouponDate;
 
     constructor(
         string memory name,
@@ -91,9 +94,11 @@ contract SukukBond is ERC20, AccessControl, IERC3643 {
         uint256 _minInvestment,
         uint256 _maxInvestment,
         uint256 _totalInvestmentTarget,
-        uint256 _investmentDeadline,
+        uint256 _purchasePeriodDuration,
         address[] memory _allowedCountries
     ) external onlyRole(ISSUER_ROLE) {
+        uint256 purchasePeriodStart = block.timestamp;
+        uint256 purchasePeriodEnd = purchasePeriodStart + _purchasePeriodDuration;
         sukukDetails = SukukDetails(
             _maturity,
             _profitRate,
@@ -106,10 +111,14 @@ contract SukukBond is ERC20, AccessControl, IERC3643 {
             _minInvestment,
             _maxInvestment,
             _totalInvestmentTarget,
-            _investmentDeadline,
+            purchasePeriodStart,
+            purchasePeriodEnd,
             _allowedCountries
         );
+        emit SukukCreated(purchasePeriodStart, purchasePeriodEnd);
     }
+
+    event SukukCreated(uint256 purchasePeriodStart, uint256 purchasePeriodEnd);
 
     function validateSukuk() external onlyRole(MASTER_ROLE) {
         require(sukukDetails.isShariahCompliant, "Sukuk is not Shariah compliant");
@@ -153,7 +162,8 @@ contract SukukBond is ERC20, AccessControl, IERC3643 {
 
     function invest(uint256 amount) external {
         require(isReleased, "Sukuk is not released yet");
-        require(block.timestamp < sukukDetails.investmentDeadline, "Investment period has ended");
+        require(block.timestamp >= sukukDetails.purchasePeriodStart, "Purchase period has not started");
+        require(block.timestamp <= sukukDetails.purchasePeriodEnd, "Purchase period has ended");
         require(amount >= sukukDetails.minInvestment && amount <= sukukDetails.maxInvestment, "Invalid investment amount");
         require(totalInvestedAmount + amount <= sukukDetails.totalInvestmentTarget, "Investment target exceeded");
         require(isAllowedCountry(msg.sender), "Investor's country is not allowed");
@@ -163,10 +173,20 @@ contract SukukBond is ERC20, AccessControl, IERC3643 {
         totalInvestedAmount += amount;
 
         if (totalInvestedAmount == sukukDetails.totalInvestmentTarget) {
-            uint256 platformFee = (totalInvestedAmount * 2) / 100;
-            sukusd.transfer(masterAddress, platformFee);
+            confirmSukuk();
         }
     }
+
+    function confirmSukuk() internal {
+        require(!isConfirmed, "Sukuk is already confirmed");
+        isConfirmed = true;
+        uint256 platformFee = (totalInvestedAmount * 2) / 100;
+        sukusd.transfer(masterAddress, platformFee);
+        firstCouponDate = block.timestamp + sukukDetails.profitDistributionPeriod;
+        emit SukukConfirmed(firstCouponDate);
+    }
+
+    event SukukConfirmed(uint256 firstCouponDate);
 
     function isAllowedCountry(address investor) internal view returns (bool) {
         uint256 country = identityRegistry.getIdentity(investor).country;
@@ -249,6 +269,8 @@ contract SukukBond is ERC20, AccessControl, IERC3643 {
         require(isProfitValidated, "Profit amount not validated");
         require(block.timestamp < sukukDetails.maturity, "Sukuk has matured");
         require(sukukDetails.isShariahCompliant, "Sukuk is not Shariah compliant");
+        require(isConfirmed, "Sukuk is not confirmed");
+        require(block.timestamp >= firstCouponDate, "First coupon date has not arrived");
 
         uint256 totalSupply = totalSupply();
         uint256 profitPerToken = nextProfitAmount * 1e18 / totalSupply;
@@ -260,8 +282,11 @@ contract SukukBond is ERC20, AccessControl, IERC3643 {
         }
 
         lastProfitDistributionTimestamp = block.timestamp;
-        emit ProfitsDistributed(nextProfitAmount);
+        firstCouponDate = block.timestamp + sukukDetails.profitDistributionPeriod;
+        emit ProfitsDistributed(nextProfitAmount, firstCouponDate);
     }
+
+    event ProfitsDistributed(uint256 totalAmount, uint256 nextCouponDate);
 
     function claimProfit() external {
         uint256 amount = unclaimedProfits[msg.sender];
