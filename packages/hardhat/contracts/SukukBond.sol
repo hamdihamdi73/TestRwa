@@ -183,16 +183,20 @@ contract SukukBond is ERC20, AccessControl, IERC3643 {
         compliance.destroyed(account, amount);
     }
 
-    function signDocument(bytes32 documentHash, bool isPublic, bytes32[] memory allowedRoles) external onlyRole(ISSUER_ROLE) {
-        documentRegistry.signDocument(documentHash, isPublic, allowedRoles);
+    function signDocument(bytes32 documentHash, bool isPublic, bytes32[] memory allowedRoles, string memory ipfsCID) external onlyRole(ISSUER_ROLE) {
+        documentRegistry.signDocument(documentHash, isPublic, allowedRoles, ipfsCID);
     }
 
-    function verifyDocument(bytes32 documentHash, bytes memory signature) external view returns (bool) {
-        return documentRegistry.verifyDocument(documentHash, signature);
+    function verifyDocument(bytes32 documentHash, string memory ipfsCID, bytes memory signature) external view returns (bool) {
+        return documentRegistry.verifyDocument(documentHash, ipfsCID, signature);
     }
 
-    function canAccessDocument(bytes32 documentHash, address user) external view returns (bool) {
-        return documentRegistry.canAccessDocument(documentHash, user);
+    function canAccessDocument(bytes32 documentHash, string memory ipfsCID, address user) external view returns (bool) {
+        return documentRegistry.canAccessDocument(documentHash, ipfsCID, user);
+    }
+
+    function getDocumentIPFSCID(bytes32 documentHash, string memory ipfsCID) external view returns (string memory) {
+        return documentRegistry.getDocumentIPFSCID(documentHash, ipfsCID);
     }
 
     function mint(address to, uint256 amount) external override onlyRole(ISSUER_ROLE) {
