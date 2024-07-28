@@ -25,6 +25,7 @@ contract SukukBond is ERC20, AccessControl, IERC3643 {
     }
 
     BondDetails public bondDetails;
+    uint256 public lastCouponTimestamp;
 
     constructor(
         string memory name,
@@ -56,7 +57,42 @@ contract SukukBond is ERC20, AccessControl, IERC3643 {
             _esgLabel,
             _category
         );
+        lastCouponTimestamp = block.timestamp;
     }
+
+    function calculateCoupon(address holder) public view returns (uint256) {
+        uint256 balance = balanceOf(holder);
+        uint256 timeSinceLastCoupon = block.timestamp - lastCouponTimestamp;
+        uint256 periodsElapsed = timeSinceLastCoupon / bondDetails.couponPeriod;
+        
+        if (periodsElapsed == 0) {
+            return 0;
+        }
+
+        uint256 couponAmount = (balance * bondDetails.couponRate * periodsElapsed) / (100 * 365 days / bondDetails.couponPeriod);
+        return couponAmount;
+    }
+
+    function distributeCoupons() external onlyRole(ISSUER_ROLE) {
+        require(block.timestamp >= lastCouponTimestamp + bondDetails.couponPeriod, "Coupon period not elapsed");
+
+        uint256 totalSupply = totalSupply();
+        uint256 totalCouponAmount = 0;
+
+        for (uint256 i = 0; i < totalSupply; i++) {
+            address holder = ownerOf(i);
+            uint256 couponAmount = calculateCoupon(holder);
+            if (couponAmount > 0) {
+                _mint(holder, couponAmount);
+                totalCouponAmount += couponAmount;
+            }
+        }
+
+        lastCouponTimestamp = block.timestamp;
+        emit CouponsDistributed(totalCouponAmount);
+    }
+
+    event CouponsDistributed(uint256 totalAmount);
 
     function mint(address to, uint256 amount) external onlyRole(ISSUER_ROLE) {
         require(identityRegistry.isVerified(to), "Recipient is not verified");
