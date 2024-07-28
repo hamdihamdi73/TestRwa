@@ -22,6 +22,11 @@ contract Compliance is ICompliance, AccessControl {
         if (_from == address(0) && currentHolderCount >= maxHolderCount) {
             return false;
         }
+        if (_to != address(0) && balanceOf(_to) == 0) {
+            if (currentHolderCount >= maxHolderCount) {
+                return false;
+            }
+        }
         // Add more compliance checks as needed
         return true;
     }

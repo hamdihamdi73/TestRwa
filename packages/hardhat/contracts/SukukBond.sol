@@ -62,18 +62,27 @@ contract SukukBond is ERC20, AccessControl, IERC3643 {
         require(identityRegistry.isVerified(to), "Recipient is not verified");
         require(compliance.canTransfer(address(0), to, amount), "Transfer not compliant");
         _mint(to, amount);
+        compliance.created(to, amount);
     }
 
     function transfer(address to, uint256 amount) public virtual override returns (bool) {
         require(identityRegistry.isVerified(to), "Recipient is not verified");
         require(compliance.canTransfer(msg.sender, to, amount), "Transfer not compliant");
-        return super.transfer(to, amount);
+        bool success = super.transfer(to, amount);
+        if (success) {
+            compliance.transferred(msg.sender, to, amount);
+        }
+        return success;
     }
 
     function transferFrom(address from, address to, uint256 amount) public virtual override returns (bool) {
         require(identityRegistry.isVerified(to), "Recipient is not verified");
         require(compliance.canTransfer(from, to, amount), "Transfer not compliant");
-        return super.transferFrom(from, to, amount);
+        bool success = super.transferFrom(from, to, amount);
+        if (success) {
+            compliance.transferred(from, to, amount);
+        }
+        return success;
     }
 
     function setIdentityRegistry(address _identityRegistry) external onlyRole(ISSUER_ROLE) {
@@ -87,6 +96,7 @@ contract SukukBond is ERC20, AccessControl, IERC3643 {
     function forcedTransfer(address from, address to, uint256 amount) external onlyRole(AGENT_ROLE) returns (bool) {
         require(identityRegistry.isVerified(to), "Recipient is not verified");
         _transfer(from, to, amount);
+        compliance.transferred(from, to, amount);
         return true;
     }
 
@@ -95,4 +105,10 @@ contract SukukBond is ERC20, AccessControl, IERC3643 {
     }
 
     // Implement other IERC3643 functions as needed
+
+    function burn(uint256 amount) public virtual {
+        require(compliance.canTransfer(msg.sender, address(0), amount), "Burn not compliant");
+        _burn(msg.sender, amount);
+        compliance.destroyed(msg.sender, amount);
+    }
 }
